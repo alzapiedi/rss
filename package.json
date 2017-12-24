@@ -1,0 +1,33 @@
+{
+  "name": "framework",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "start": "cd client;npm run build;cd ..;babel-node src/server.js",
+    "clean": "rm app.js && rm app.js.map && rm -rf node_modules",
+    "debug": "babel-node src/debug.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "6.26.0",
+    "babel-loader": "7.1.2",
+    "babel-preset-node6": "11.0.0",
+    "babel-preset-stage-2": "6.24.1",
+    "webpack": "3.9.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
+    "dotenv": "^4.0.0",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2",
+    "path": "^0.12.7",
+    "rss-parser": "^2.11.0",
+    "superagent": "^3.8.2"
+  }
+}
