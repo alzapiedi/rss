@@ -1,26 +1,38 @@
 import React, { Component } from 'react';
 
 export default class Root extends Component {
-  render() {
-    return (
-      <div id="map" />
-    );
+  state = {
+    entries: []
   }
 
   componentDidMount() {
-    const cityHall = { lat: 39.952575, lng: -75.163836 };
-    this.map = new window.google.maps.Map(document.getElementById('map'), {
-      zoom: 4,
-      center: cityHall
-    });
-    fetch('/news').then(r => r.json()).then(r => r.entries.map(this.drawEntry));
+    fetch('http://localhost:3000/all')
+      .then(res => res.json())
+      .then(json => this.setState({ entries: json.entries }))
+      .catch(e => console.log(e.message))
   }
 
-  drawEntry = entry => {
-    new window.google.maps.Marker({
-      position: entry.location,
-      map: this.map,
-      title: entry.title
+  render() {
+    window.comp = this;
+    return (
+      <div>
+        {this.state.entries.map(this.renderEntry, this)}
+      </div>
+    );
+  }
+
+  renderEntry(entry) {
+    return <div>{entry.title}</div>;
+  }
+
+  updateStore = () => {
+    fetch('http://localhost:3000/update', {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: 'post',
+      body: JSON.stringify({ entries: this.state.entries })
     });
   }
 }

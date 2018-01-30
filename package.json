@@ -4,7 +4,7 @@
   "description": "",
   "main": "script.js",
   "scripts": {
-    "start": "cd client;npm run build;cd ..;babel-node src/server.js",
+    "start": "babel-node src/server.js",
     "clean": "rm app.js && rm app.js.map && rm -rf node_modules",
     "debug": "babel-node src/debug.js"
   },
