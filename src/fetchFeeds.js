@@ -7,13 +7,16 @@ import { parseString } from 'rss-parser';
 let ID = 1;
 
 const feeds = [
-  { url: 'http://www.phillyvoice.com/feed/tag/flyers/', emoji: 'hockey', coordinate: { latitude: 39.90122, longitude: -75.172 } }
+  'http://www.phillyvoice.com/feed/tag/flyers/',
+  'http://www.phillyvoice.com/feed/tag/eagles/',
+  'http://www.phillyvoice.com/feed/channel/philadelphia-news/',
+  'http://www.phillyvoice.com/feed/tag/food-drink/'
 ];
 
 export default function fetchFeeds() {
-  feeds.forEach(feed => {
+  feeds.forEach(url => {
     let stringXml = '';
-    http.get(feed.url, (res) => {
+    http.get(url, (res) => {
       res.on('data', chunk => {
         stringXml += chunk;
       });
@@ -21,7 +24,7 @@ export default function fetchFeeds() {
       res.on('end', () => {
         parseString(stringXml, (err, parsedXml) => {
           if (err) return console.log('XML PARSE FAILED!');
-          const  { entries } = parsedXml.feed;
+          const { entries } = parsedXml.feed;
           entries.forEach(entry => {
             addItem({
               id: ID,
@@ -30,9 +33,7 @@ export default function fetchFeeds() {
               body: entry.content,
               date: entry.pubDate,
               title: entry.title,
-              link: entry.link,
-              coordinate: feed.coordinate,
-              emoji: feed.emoji
+              link: entry.link
             });
             fetchImage(entry.link, ID++);
           });

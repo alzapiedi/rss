@@ -1,19 +1,26 @@
 import React, { Component } from 'react';
 
+const locations = [
+  { name: 'Wells Fargo', coordinate: { latitude: 39.90122, longitude: -75.172 } },
+  { name: 'Linc', coordinate: { latitude: 39.900755, longitude: -75.167452 } },
+  { name: 'Citizens bank park', coordinate: { latitude: 39.905891, longitude: -75.166554 } },
+  { name: 'City hall', coordinate: { latitude: 39.952364, longitude: -75.163619 } },
+  { name: 'Art museum', coordinate: { latitude: 39.965558, longitude: -75.180917 } }
+];
+
 export default class Root extends Component {
   state = {
     entries: []
   }
 
   componentDidMount() {
-    fetch('http://localhost:3000/all')
+    fetch('http://localhost:3000/rss')
       .then(res => res.json())
       .then(json => this.setState({ entries: json.entries }))
       .catch(e => console.log(e.message))
   }
 
   render() {
-    window.comp = this;
     return (
       <div>
         {this.state.entries.map(this.renderEntry, this)}
@@ -22,17 +29,51 @@ export default class Root extends Component {
   }
 
   renderEntry(entry) {
-    return <div>{entry.title}</div>;
+    return (
+      <div key={entry.id} className="entry">
+        <a href={entry.link}>{entry.title}</a>
+        <div>
+          <label>lat</label>
+          <input onChange={this.changeLat.bind(this, entry)}/>
+          <label>lng</label>
+          <input onChange={this.changeLng.bind(this, entry)}/>
+          <label>emoji name</label>
+          <input onChange={this.changeEmoji.bind(this, entry)}/>
+          <button onClick={this.addToDB.bind(this, entry)}>Add</button>
+        </div>
+      </div>
+    );
   }
 
-  updateStore = () => {
-    fetch('http://localhost:3000/update', {
+  changeLat = (entry, event) => {
+    const { entries } = this.state;
+    const idx = entries.findIndex(e => e.title === entry.title);
+    entries[idx].coordinates = { latitude: event.target.value, longitude: entries[idx].coordinates ? entries[idx].coordinates.longitude : null };
+    this.setState({ entries });
+  }
+
+  changeLng = (entry, event) => {
+    const { entries } = this.state;
+    const idx = entries.findIndex(e => e.title === entry.title);
+    entries[idx].coordinates = { latitude: entries[idx].coordinates ? entries[idx].coordinates.latitude : null, longitude: event.target.value };
+    this.setState({ entries });
+  }
+
+  changeEmoji = (entry, event) => {
+    const { entries } = this.state;
+    const idx = entries.findIndex(e => e.title === entry.title);
+    entries[idx].emoji = event.target.value;
+    this.setState({ entries });
+  }
+
+  addToDB = entry => {
+    fetch('http://localhost:3000/add', {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       method: 'post',
-      body: JSON.stringify({ entries: this.state.entries })
+      body: JSON.stringify({ entry })
     });
   }
 }

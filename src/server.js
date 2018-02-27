@@ -1,5 +1,5 @@
 require('dotenv').config({silent: true});
-import { addItem, store, replace } from './store';
+import { addToDB, store, subStore } from './store';
 import bodyParser from 'body-parser';
 import cheerio from 'cheerio';
 import cookieParser from 'cookie-parser';
@@ -23,7 +23,7 @@ server.use(bodyParser.urlencoded({ extended: true }));
 server.set('views', path.join(__dirname, '/views'));
 server.set('view engine', 'ejs');
 
-server.use('/assets/javascripts', express.static('client/build'));
+server.use('/assets', express.static('client/build'));
 
 server.get('/', (request, response) => {
   response.render('index');
@@ -34,12 +34,12 @@ server.get('/news', (request, response) => {
   response.json({ entries: store });
 });
 
-server.get('/all', (request, response) => {
+server.get('/rss', (request, response) => {
   response.json({ entries: store });
 });
 
-server.post('/update', (request, response) => {
-  replace(request.body.entries);
+server.post('/add', (request, response) => {
+  if (!subStore.some(entry => entry.link === request.body.entry.link)) addToDB(request.body.entry);
   response.json({ status: 'ok' });
 });
 
