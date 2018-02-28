@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import Map from './Map';
+import Modal from 'react-modal';
 
 const locations = [
   { name: 'Wells Fargo', coordinates: { latitude: 39.90122, longitude: -75.172 } },
@@ -31,6 +33,10 @@ export default class Root extends Component {
     return (
       <div>
         {this.state.entries.map(this.renderEntry, this)}
+        <Modal isOpen={this.state.isMapModalOpen}>
+          <Map entry={this.state.entryToMap} />
+          <button onClick={this.closeMapModal}>Close</button>
+        </Modal>
       </div>
     );
   }
@@ -47,6 +53,7 @@ export default class Root extends Component {
           <input onChange={this.changeLng.bind(this, entry)}/>
           <label>emoji name</label>
           <input onChange={this.changeEmoji.bind(this, entry)}/>
+          <button onClick={this.openMapModal.bind(this, entry)}>Map</button>
           <button onClick={this.addToDB.bind(this, entry)}>Add</button>
           <button onClick={this.hide.bind(this, idx)}>Hide</button>
         </div>
@@ -79,9 +86,17 @@ export default class Root extends Component {
     this.setState({ entries });
   }
 
+  openMapModal = entry => {
+    this.setState({ isMapModalOpen: true, entryToMap: entry });
+  }
+
+  closeMapModal = () => {
+    this.setState({ isMapModalOpen: false, entryToMap: null });
+  }
+
   addToDB = entry => {
     if (!entry.coordinates || !entry.coordinates.latitude || !entry.coordinates.longitude || !entry.emoji) return alert('fill everything out plz');
-    if (!entry.coordinates.latitude.match(/^(-|\d)\d*$/) || !entry.coordinates.longitude.match(/^(-|\d)\d*$/)) return alert('real coords plz'); 
+    if (!entry.coordinates.latitude.match(/^(-|\d)\d*$/) || !entry.coordinates.longitude.match(/^(-|\d)\d*$/)) return alert('real coords plz');
     fetch(window.API_BASE_URL + '/add', {
       headers: {
         'Accept': 'application/json',
