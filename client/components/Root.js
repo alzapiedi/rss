@@ -10,14 +10,20 @@ const locations = [
 
 export default class Root extends Component {
   state = {
-    entries: []
+    entries: [],
+    feed: []
   }
 
   componentDidMount() {
     window.comp = this;
-    fetch('http://108.4.212.129:4000/rss')
+    fetch(window.API_BASE_URL + '/rss')
       .then(res => res.json())
       .then(json => this.setState({ entries: json.entries }))
+      .catch(e => console.log(e.message))
+
+    fetch(window.API_BASE_URL + '/feed')
+      .then(res => res.json())
+      .then(json => this.setState({ feed: json.entries }))
       .catch(e => console.log(e.message))
   }
 
@@ -30,8 +36,9 @@ export default class Root extends Component {
   }
 
   renderEntry(entry, idx) {
+    const className = this.state.feed.some(feedEntry => feedEntry.link === entry.link) ? 'existing' : '';
     return (
-      <div id={`entry${idx}`} key={entry.link} className="entry">
+      <div id={`entry${idx}`} key={entry.link} className={`entry ${className}`}>
         <a href={entry.link}>{entry.title}</a>
         <div>
           <label>lat</label>
@@ -74,7 +81,8 @@ export default class Root extends Component {
 
   addToDB = entry => {
     if (!entry.coordinates || !entry.coordinates.latitude || !entry.coordinates.longitude || !entry.emoji) return alert('fill everything out plz');
-    fetch('http://108.4.212.129:4000/add', {
+    if (!entry.coordinates.latitude.match(/^(-|\d)\d*$/) || !entry.coordinates.longitude.match(/^(-|\d)\d*$/)) return alert('real coords plz'); 
+    fetch(window.API_BASE_URL + '/add', {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'

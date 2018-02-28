@@ -26,7 +26,7 @@ server.set('view engine', 'ejs');
 server.use('/assets', express.static('client/build'));
 
 server.get('/', (request, response) => {
-  response.render('index');
+  response.render('index', { apiBaseUrl: process.env.API_BASE_URL });
 });
 
 server.get('/feed', (request, response) => {
