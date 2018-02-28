@@ -4,13 +4,13 @@ import superagent from 'superagent';
 import { addItem, updateImage } from './store';
 import { parseString } from 'rss-parser';
 
-let ID = 1;
-
 const feeds = [
   'http://www.phillyvoice.com/feed/tag/flyers/',
   'http://www.phillyvoice.com/feed/tag/eagles/',
   'http://www.phillyvoice.com/feed/channel/philadelphia-news/',
-  'http://www.phillyvoice.com/feed/tag/food-drink/'
+  'http://www.phillyvoice.com/feed/tag/food-drink/',
+  'http://www.phillyvoice.com/feed/tag/politics/',
+  'http://www.phillyvoice.com/feed/tag/education/'
 ];
 
 export default function fetchFeeds() {
@@ -27,7 +27,6 @@ export default function fetchFeeds() {
           const { entries } = parsedXml.feed;
           entries.forEach(entry => {
             addItem({
-              id: ID,
               author: entry.creator._.trim(),
               tags: entry.categories,
               body: entry.content,
@@ -35,7 +34,7 @@ export default function fetchFeeds() {
               title: entry.title,
               link: entry.link
             });
-            fetchImage(entry.link, ID++);
+            fetchImage(entry.link);
           });
         });
       });
@@ -46,7 +45,7 @@ export default function fetchFeeds() {
   });
 }
 
-function fetchImage(url, id) {
+function fetchImage(url) {
   superagent.get(url)
     .then(res => {
       const $ = cheerio.load(res.text);
@@ -56,6 +55,7 @@ function fetchImage(url, id) {
         if (image.attribs.alt.toLowerCase().indexOf('logo') === -1) imageSrc = image.attribs.src;
       });
       const imageCredit = $('.article-image-credit')[0].children[0].data.trim();
-      updateImage(id, { src: imageSrc, credit: imageCredit });
+      updateImage(url, { src: imageSrc, credit: imageCredit });
     })
+    .catch(error => console.log(error.message))
 }

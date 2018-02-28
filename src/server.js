@@ -29,19 +29,32 @@ server.get('/', (request, response) => {
   response.render('index');
 });
 
-server.get('/news', (request, response) => {
-  console.log('GET /news');
-  response.json({ entries: store });
+server.get('/feed', (request, response) => {
+  console.log('GET /feed');
+  const result = subStore.map(entry => {
+    const { coordinates, ...rest } = entry;
+    return {
+      coordinates: { latitude: Number(coordinates.latitude), longitude: Number(coordinates.longitude) },
+      ...rest
+    }
+  })
+  response.json({ entries: result });
 });
 
 server.get('/rss', (request, response) => {
+  console.log('GET /rss');
   response.json({ entries: store });
 });
 
 server.post('/add', (request, response) => {
-  if (!subStore.some(entry => entry.link === request.body.entry.link)) addToDB(request.body.entry);
+  console.log('POST /add');
+  if (subStore.some(entry => entry.link === request.body.entry.link)) return response.json({ status: 'error' });
+  addToDB(request.body.entry);
+  console.log('Successfully added entry');
   response.json({ status: 'ok' });
 });
 
-server.listen(3000);
-console.log('SERVER RUNNING PORT 3000');
+server.listen(4000);
+console.log('SERVER RUNNING PORT 4000');
+
+setTimeout(() => console.log(store), 20000)

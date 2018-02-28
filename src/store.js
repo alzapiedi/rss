@@ -6,13 +6,12 @@ export const subStore = JSON.parse(fs.readFileSync(__dirname + '/data.txt'));
 export const addItem = item => store.push(item);
 
 export const addToDB = item => {
-  console.log(item);
   subStore.push(item);
   fs.writeFileSync(__dirname + '/data.txt', JSON.stringify(subStore));
 }
 
-export const updateImage = (id, image) => {
-  const item = store.find(x => x.id === id);
+export const updateImage = (url, image) => {
+  const item = store.find(x => x.link === url);
   if (item) item.image = image;
 }
 

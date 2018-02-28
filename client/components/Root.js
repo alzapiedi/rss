@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 
 const locations = [
-  { name: 'Wells Fargo', coordinate: { latitude: 39.90122, longitude: -75.172 } },
-  { name: 'Linc', coordinate: { latitude: 39.900755, longitude: -75.167452 } },
-  { name: 'Citizens bank park', coordinate: { latitude: 39.905891, longitude: -75.166554 } },
-  { name: 'City hall', coordinate: { latitude: 39.952364, longitude: -75.163619 } },
-  { name: 'Art museum', coordinate: { latitude: 39.965558, longitude: -75.180917 } }
+  { name: 'Wells Fargo', coordinates: { latitude: 39.90122, longitude: -75.172 } },
+  { name: 'Linc', coordinates: { latitude: 39.900755, longitude: -75.167452 } },
+  { name: 'Citizens bank park', coordinates: { latitude: 39.905891, longitude: -75.166554 } },
+  { name: 'City hall', coordinates: { latitude: 39.952364, longitude: -75.163619 } },
+  { name: 'Art museum', coordinates: { latitude: 39.965558, longitude: -75.180917 } }
 ];
 
 export default class Root extends Component {
@@ -14,7 +14,8 @@ export default class Root extends Component {
   }
 
   componentDidMount() {
-    fetch('http://localhost:3000/rss')
+    window.comp = this;
+    fetch('http://108.4.212.129:4000/rss')
       .then(res => res.json())
       .then(json => this.setState({ entries: json.entries }))
       .catch(e => console.log(e.message))
@@ -28,9 +29,9 @@ export default class Root extends Component {
     );
   }
 
-  renderEntry(entry) {
+  renderEntry(entry, idx) {
     return (
-      <div key={entry.id} className="entry">
+      <div id={`entry${idx}`} key={entry.link} className="entry">
         <a href={entry.link}>{entry.title}</a>
         <div>
           <label>lat</label>
@@ -40,9 +41,14 @@ export default class Root extends Component {
           <label>emoji name</label>
           <input onChange={this.changeEmoji.bind(this, entry)}/>
           <button onClick={this.addToDB.bind(this, entry)}>Add</button>
+          <button onClick={this.hide.bind(this, idx)}>Hide</button>
         </div>
       </div>
     );
+  }
+
+  hide = idx => {
+    document.getElementById(`entry${idx}`).style.display = 'none';
   }
 
   changeLat = (entry, event) => {
@@ -67,13 +73,16 @@ export default class Root extends Component {
   }
 
   addToDB = entry => {
-    fetch('http://localhost:3000/add', {
+    if (!entry.coordinates || !entry.coordinates.latitude || !entry.coordinates.longitude || !entry.emoji) return alert('fill everything out plz');
+    fetch('http://108.4.212.129:4000/add', {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       method: 'post',
       body: JSON.stringify({ entry })
+    }).then(res => res.json()).then(json => {
+      if (json.status === 'error') alert('Already in there bro');
     });
   }
 }
