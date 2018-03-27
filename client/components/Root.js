@@ -17,7 +17,6 @@ export default class Root extends Component {
   }
 
   componentDidMount() {
-    window.comp = this;
     fetch(window.API_BASE_URL + '/rss')
       .then(res => res.json())
       .then(json => this.setState({ entries: json.entries }))
@@ -96,7 +95,7 @@ export default class Root extends Component {
 
   addToDB = entry => {
     if (!entry.coordinates || !entry.coordinates.latitude || !entry.coordinates.longitude || !entry.emoji) return alert('fill everything out plz');
-    if (!entry.coordinates.latitude.match(/^(-|\d)\d*$/) || !entry.coordinates.longitude.match(/^(-|\d)\d*$/)) return alert('real coords plz');
+    if (!entry.coordinates.latitude.match(/^(-|\d)(\d*\.)\d*$/) || !entry.coordinates.longitude.match(/^(-|\d)(\d*\.)\d*$/)) return alert('real coords plz');
     fetch(window.API_BASE_URL + '/add', {
       headers: {
         'Accept': 'application/json',
